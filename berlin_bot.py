@@ -60,30 +60,36 @@ class BerlinBot:
     @staticmethod
     def enter_form(driver: webdriver.Chrome):
         logging.info("Fill out form")
-        # select china
+        # Staatsangehörigkeit
         s = Select(driver.find_element(By.ID, 'xi-sel-400'))
-        s.select_by_visible_text("China")
-        # eine person
+        s.select_by_visible_text("Korea, Republik")
+        time.sleep(1)
+        # Anzahl der Personen
         s = Select(driver.find_element(By.ID, 'xi-sel-422'))
-        s.select_by_visible_text("eine Person")
-        # no family
-        s = Select(driver.find_element(By.ID, 'xi-sel-427' ))
-        s.select_by_visible_text("nein")
-        time.sleep(5)
-
-        # extend stay
-        driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[2]/label/p').click()
+        s.select_by_visible_text("drei Personen")
+        time.sleep(1)
+        # zusammen mit Familienangehörigen
+        s = Select(driver.find_element(By.ID, 'xi-sel-427'))
+        s.select_by_visible_text("ja")
+        time.sleep(1)
+        # Staatsangehörigkeit Familienangehörige
+        s = Select(driver.find_element(By.ID, 'xi-sel-428'))
+        s.select_by_visible_text("Korea, Republik")
         time.sleep(2)
 
-        # click on study group
-        driver.find_element(By.XPATH, '//*[@id="inner-479-0-2"]/div/div[1]/label/p').click()
+        # Service
+        driver.find_element(By.XPATH, '//*[@id="xi-div-30"]/div[1]/label/p').click()
         time.sleep(2)
 
-        # b/c of stufy
-        driver.find_element(By.XPATH, '//*[@id="inner-479-0-2"]/div/div[2]/div/div[5]/label').click()
+        # Grund
+        driver.find_element(By.XPATH, '//*[@id="inner-467-0-1"]/div/div[3]/label/p').click()
+        time.sleep(2)
+
+        # Typ
+        driver.find_element(By.XPATH, '//*[@id="inner-467-0-1"]/div/div[4]/div/div[14]/label').click()
         time.sleep(4)
 
-        # submit form
+        # Weiter
         driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
         time.sleep(10)
     
@@ -104,6 +110,7 @@ class BerlinBot:
 
             # retry submit
             for _ in range(10):
+                driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
                 if not self._error_message in driver.page_source:
                     self._success()
                 logging.info("Retry submitting form")
