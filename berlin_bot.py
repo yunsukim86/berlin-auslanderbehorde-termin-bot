@@ -110,14 +110,16 @@ class BerlinBot:
 
             # retry submit
             for _ in range(20):
-                try:
-                    errorMessage = driver.find_element(By.CLASS_NAME, 'errorMessage')
-                    print(errorMessage.text)
-                except:  # no error message (success!)
+                antcl_active = driver.find_element(By.CLASS_NAME, 'antcl_active')
+                if antcl_active.text.startswith('2'):  # still in step 2 (Servicewahl)
+                    logging.info("Retry submitting form")
+                    driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
+                    time.sleep(self.wait_time)
+                elif antcl_active.text.startswith('3'):  # success! (Terminauswahl)
                     self._success()
-                logging.info("Retry submitting form")
-                driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
-                time.sleep(self.wait_time)
+                else:
+                    logging.info("Unknown step, retrying...")
+                    break
 
     def run_loop(self):
         # play sound to check if it works
@@ -127,7 +129,7 @@ class BerlinBot:
             round_start = time.time()
             self.run_once()
             round_end = time.time()
-            print(f"Round took {round_end - round_start} seconds")
+            print(f"Round took {round_end - round_start:d} seconds")
             time.sleep(self.wait_time)
 
     # stolen from https://github.com/JaDogg/pydoro/blob/develop/pydoro/pydoro_core/sound.py
