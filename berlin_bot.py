@@ -38,7 +38,7 @@ class WebDriver:
 
 class BerlinBot:
     def __init__(self):
-        self.wait_time = 20
+        self.wait_time = 22
         self._sound_file = os.path.join(os.getcwd(), "alarm.wav")
         self._error_message = """Für die gewählte Dienstleistung sind aktuell keine Termine frei! Bitte"""
 
@@ -91,7 +91,7 @@ class BerlinBot:
 
         # Weiter
         driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
-        time.sleep(10)
+        time.sleep(22)
     
     def _success(self):
         logging.info("!!!SUCCESS - do not close the window!!!!")
@@ -109,9 +109,11 @@ class BerlinBot:
             self.enter_form(driver)
 
             # retry submit
-            for _ in range(10):
-                driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
-                if not self._error_message in driver.page_source:
+            for _ in range(20):
+                try:
+                    errorMessage = driver.find_element(By.CLASS_NAME, 'errorMessage')
+                    print(errorMessage.text)
+                except:  # no error message (success!)
                     self._success()
                 logging.info("Retry submitting form")
                 driver.find_element(By.ID, 'applicationForm:managedForm:proceed').click()
@@ -122,7 +124,10 @@ class BerlinBot:
         self._play_sound_osx(self._sound_file)
         while True:
             logging.info("One more round")
+            round_start = time.time()
             self.run_once()
+            round_end = time.time()
+            print(f"Round took {round_end - round_start} seconds")
             time.sleep(self.wait_time)
 
     # stolen from https://github.com/JaDogg/pydoro/blob/develop/pydoro/pydoro_core/sound.py
